@@ -35,6 +35,7 @@ let mqttClient: MqttClient;
 if (enabled) {
   mqttClient = connect(process.env.MQTT_HOST, mqttOptions);
 } else {
+  // A mock instance of mqttClient for testing without sending any messages
   mqttClient = {
     publish: (
       topic: string,

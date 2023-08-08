@@ -3,6 +3,10 @@ import * as crypto from 'crypto';
 import { HomelyFeature } from '../db';
 import { logger } from '../utils/logger';
 
+/**
+ * Create the gateway (alarm-panel) device
+ * @param homeData
+ */
 export const gateway = (homeData: Home) => {
   const device = {
     id: homeData.locationId,

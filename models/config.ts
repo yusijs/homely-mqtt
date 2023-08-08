@@ -2,10 +2,16 @@ import { Dialect } from 'sequelize';
 
 export type Config = {
   database: {
+    /**
+     * If true, the database will be reset on startup, and all devices will be re-discovered.
+     */
     reset?: boolean;
     connection: {
       username: string;
       password: string;
+      /**
+       * SQLite specific option, either path/to/db.file or :memory:
+       */
       storage: string;
       host: string;
       dialect: Dialect;

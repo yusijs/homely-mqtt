@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 // a function that gets a value from an object based on the path
 // e.g. get({a: {b: {c: 1}}}, 'a.b.c') === 1
 export function getValueByPath<T, K extends keyof T>(

@@ -5,6 +5,11 @@ import { InferCreationAttributes } from 'sequelize';
 import { HomelyFeature } from '../db';
 import { Device } from '../models/home';
 
+/**
+ * Publishes the state of all discovered devices to MQTT
+ * @param discoveredDevices
+ * @param devices
+ */
 export const publishEntityChanges = async (
   discoveredDevices: Array<InferCreationAttributes<HomelyFeature>>,
   devices: Array<Device>
@@ -24,6 +29,11 @@ export const publishEntityChanges = async (
   }
 };
 
+/**
+ * Publishes a value to MQTT. Converts boolean values to ON/OFF to work out of the box with Home Assistant
+ * @param stateTopic
+ * @param value
+ */
 export const publish = (
   stateTopic: string,
   value: string | boolean | number

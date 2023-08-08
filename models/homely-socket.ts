@@ -1,5 +1,5 @@
 export type HomelySocket = {
-  type: "device-state-changed";
+  type: 'device-state-changed';
   data: {
     deviceId: string;
     gatewayId: string;
@@ -8,10 +8,10 @@ export type HomelySocket = {
     rootLocationId: string;
     changes: [
       {
-        feature: "temperature" | "alarm" | "battery" | "diagnostic";
+        feature: string;
         stateName: string;
         value: string | number | boolean;
-        lastUpdated: "2023-08-01T12:37:30.145Z";
+        lastUpdated: string;
       },
     ];
   };

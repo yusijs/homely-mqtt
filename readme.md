@@ -28,6 +28,7 @@ The application runs with discovery, and is confirmed to work for the following 
 | Motion               | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Heat                 | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
 | Door/Window          | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Flood                | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 
 

@@ -31,6 +31,24 @@ type Collapse<T extends Entry> = {
   ? { [K in keyof O]: O[K] }
   : never;
 
+/**
+ * Flatten a nested object into a single level object with dot-notation keys
+ * @example
+ *  type Foo = {
+ *    a: {
+ *      b: {
+ *        c: string;
+ *      }
+ *      d: number;
+ *      e: boolean;
+ *    }
+ *  }
+ *  Flatten<Foo> = {
+ *    'a.b.c': string;
+ *    'a.d': number;
+ *    'a.e': boolean;
+ *  }
+ */
 type Flatten<T> = Collapse<Explode<T>>;
 
 type _Sensor<T = object> = {

@@ -12,6 +12,7 @@ class Authentication {
   /**
    * Authenticate with homely and store the token
    * @private
+   * @returns {Promise<Token>}
    */
   private async auth() {
     const res = await fetch(`${uri}/oauth/token`, {
@@ -35,6 +36,7 @@ class Authentication {
   /**
    * Use the refresh token to get a new access token
    * @private
+   * @returns {Promise<Token>}
    */
   private async refreshToken() {
     const res = await fetch(`${uri}/oauth/refresh-token`, {
@@ -52,6 +54,7 @@ class Authentication {
 
   /**
    * Get the token, either from cache, by refresh-token or by authenticating
+   * @returns {Promise<Token>}
    */
   public async getToken() {
     if (this.token && this.token.exp > Date.now()) {

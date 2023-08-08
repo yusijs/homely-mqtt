@@ -2,6 +2,9 @@ import { HomelyFeature } from '../db';
 import { mqttClient } from '../utils/mqtt';
 import { logger } from '../utils/logger';
 
+/**
+ * Publishes all entities where published is false to mqtt, and marks them as published.
+ */
 export const createEntitiesMqtt = async () => {
   const newFeatures = await HomelyFeature.findAll({
     where: { published: false },

@@ -1,3 +1,6 @@
+/**
+ * Valid alarm states from Homely
+ */
 export type AlarmState =
   | 'DISARMED'
   | 'ARMED_AWAY'
@@ -9,6 +12,9 @@ export type AlarmState =
   | 'ARMED_NIGHT_PENDING'
   | 'ARMED_AWAY_PENDING';
 
+/**
+ * Valid alarm states for Home Assistant
+ */
 export type HomeAssistantAlarmState =
   | 'disarmed'
   | 'armed_home'
@@ -21,6 +27,9 @@ export type HomeAssistantAlarmState =
   | 'arming'
   | 'disarming';
 
+/**
+ * Map Homely alarm states to Home Assistant alarm states
+ */
 export const HomelyAlarmStateToHomeAssistant: Record<
   AlarmState,
   HomeAssistantAlarmState

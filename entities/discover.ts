@@ -6,10 +6,15 @@ import { HomelyFeature } from '../db';
 import { SensorWithName } from '../sensors/model';
 import { InferCreationAttributes } from 'sequelize';
 
-// a function that uppercases the first letter of a string
+// Capitalizes the first letter of a string to make device-names more human-readable
 export const capitalize = (s: string) =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : 'NOT_AVAILABLE';
 
+/**
+ * Iterates over all devices in a home and looks for matching sensors as defined in {@link sensors}
+ * @returns an array of {@link HomelyFeature} that is used to create entities in Home Assistant
+ * @param home
+ */
 export const discover = (
   home: Home
 ): Array<InferCreationAttributes<HomelyFeature>> => {
@@ -45,6 +50,11 @@ export const discover = (
   });
 };
 
+/**
+ * Iterates over all sensors and looks for a match in the device features
+ * @returns an array of {@link SensorWithName} that is used to create entities in Home Assistant
+ * @param device
+ */
 export const discoverDevice = (device: Device) => {
   const { features } = device;
   return sensors

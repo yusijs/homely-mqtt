@@ -70,8 +70,12 @@ export async function listenToSocket(locationId: string) {
       },
     }
   );
-  socket.on('connect_error', logger.error);
-  socket.on('error', logger.error);
+  socket.on('connect_error', (err: unknown) => {
+    logger.error(`[WS] Connection error: ${err}`);
+  });
+  socket.on('error', (err: unknown) => {
+    logger.error(`[WS] Error: ${err}`);
+  });
   socket.on('disconnect', (e: string) => {
     logger.warn(`[WS] Disconnected from homely socket: ${e}`);
     logger.info('[WS] Reconnecting to homely...');
@@ -79,6 +83,7 @@ export async function listenToSocket(locationId: string) {
   });
   socket.on('event', async function (data: HomelySocket) {
     logger.trace(data);
+    logger.debug(`Got ${data.type} event from homely ws-api`);
     switch (data.type) {
       case 'device-state-changed':
         const unit = data.data;
@@ -110,7 +115,7 @@ export async function listenToSocket(locationId: string) {
         }
         break;
       default:
-        logger.warn(`Unknown event type ${data.type}`);
+        logger.warn(`Unknown event type ${data.type}, see payload below:`);
         logger.warn(data);
     }
   });

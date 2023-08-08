@@ -2,6 +2,11 @@ import { HomelyFeature } from '../db';
 import { logger } from '../utils/logger';
 import { InferCreationAttributes } from 'sequelize';
 
+/**
+ * Creates or updates entities in the database. If the entity already exists, it will be updated if any of the properties have changed.
+ * @param discoveredDevices
+ * @param gatewayFeature
+ */
 export const getAndCreateEntities = async (
   discoveredDevices: Array<InferCreationAttributes<HomelyFeature>>,
   gatewayFeature: HomelyFeature
@@ -23,6 +28,7 @@ export const getAndCreateEntities = async (
       const allSame = Object.keys(existingJson).every((k) => {
         const a = existingJson[k as keyof typeof existingJson];
         const b = feature[k as keyof typeof existingJson];
+        // null and undefined are considered equal
         if (
           (a === null || a === undefined) &&
           (b === null || b === undefined)
@@ -32,10 +38,10 @@ export const getAndCreateEntities = async (
         return a === b;
       });
       if (allSame) {
-        logger.info(`Nothing changed`);
+        logger.debug(`Nothing changed for ${feature.name}`);
       } else {
-        logger.info(`Change detected:`);
-        logger.info({ existingJson, feature });
+        logger.info(`Change detected for ${feature.name}, updating...`);
+        logger.debug({ existingJson, feature });
         await exists.update({ ...feature, published: false });
         await exists.save();
       }
