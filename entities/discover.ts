@@ -17,7 +17,7 @@ export const capitalize = (s: string) =>
  */
 export const discover = (
   home: Home
-): Array<InferCreationAttributes<HomelyFeature>> => {
+): Array<InferCreationAttributes<HomelyFeature> & { online: boolean }> => {
   const { devices } = home;
   const matched = devices.map((dev) => ({
     device: dev,
@@ -38,6 +38,7 @@ export const discover = (
         unit: s.unit,
         type: s.type,
         device_class,
+        online: m.device.online,
         icon: s.icon,
         state_class: s.stateClass,
         entity_category: s.entityCategory,
@@ -45,7 +46,7 @@ export const discover = (
         config_topic: `homeassistant/${s.type}/${m.device.id}/${s.name}/config`,
         availability_topic: `${topicBase}/online`,
         state_topic: `${topicBase}/${s.name}/state`,
-      } as InferCreationAttributes<HomelyFeature>;
+      } as InferCreationAttributes<HomelyFeature> & { online: boolean };
     });
   });
 };

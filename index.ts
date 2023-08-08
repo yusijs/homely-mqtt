@@ -14,8 +14,9 @@ import {
   publishEntityChanges,
 } from './entities/publish-entity-changes';
 import { scheduleJob } from 'node-schedule';
-import { HomelyDevice } from './db';
+import { HomelyDevice, HomelyFeature } from './db';
 import { HomelyAlarmStateToHomeAssistant } from './models/alarm-state';
+import { mqttClient } from './utils/mqtt';
 
 dotenv.config();
 
@@ -53,6 +54,9 @@ async function updateAndCreateEntities(homeData: Home) {
   ];
   await createDevices(devices);
   const discoveredDevices = discover(homeData);
+  discoveredDevices.forEach((dev) =>
+    publish(dev.availability_topic, dev.online ? 'online' : 'offline')
+  );
   await getAndCreateEntities(discoveredDevices, gatewayFeature);
   await createEntitiesMqtt();
   await publishEntityChanges(discoveredDevices, devices);
@@ -60,6 +64,20 @@ async function updateAndCreateEntities(homeData: Home) {
 
   publish(gatewayFeature.state_topic, alarmState);
 }
+
+process.on('exit', () => {
+  HomelyFeature.findAll({})
+    .then((features) => {
+      features.forEach((f) => {
+        if (f.state_topic) {
+          publish(f.availability_topic, 'offline');
+        }
+      });
+    })
+    .catch((ex) => {
+      /*already exiting, skip.*/
+    });
+});
 
 (async function () {
   await init();
