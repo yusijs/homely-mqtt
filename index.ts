@@ -83,11 +83,16 @@ async function updateAndCreateEntities(homeData: Home) {
   await init();
   const homes = await locations();
   logger.info(`Loaded ${homes.length} homes`);
+  logger.debug(homes);
 
-  for (const location of homes) {
-    const homeData = await home(location.locationId);
-    await updateAndCreateEntities(homeData);
-    await pollHomely(location.locationId);
-    await listenToSocket(location.locationId);
+  try {
+    for (const location of homes) {
+      const homeData = await home(location.locationId);
+      await updateAndCreateEntities(homeData);
+      await pollHomely(location.locationId);
+      await listenToSocket(location.locationId);
+    }
+  } catch (ex) {
+    logger.fatal(ex);
   }
 })();
