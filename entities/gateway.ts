@@ -26,7 +26,7 @@ export const gateway = (homeData: Home) => {
     type: 'alarm_control_panel',
     device_class: 'alarm_control_panel',
     name: 'Gateway',
-    command_topic: 'homely/${homeData.gatewayserial}/armed/command',
+    command_topic: `homely/${homeData.gatewayserial}/armed/command`,
     availability_topic: `homely/${homeData.gatewayserial}/availability`,
     config_topic: `homeassistant/alarm_control_panel/${homeData.gatewayserial}/config`,
     state_topic: `homely/${homeData.gatewayserial}/armed/state`,

@@ -24,6 +24,10 @@ export async function locations(): Promise<Array<HomelyLocation>> {
       Authorization: `Bearer ${token.access_token}`,
     },
   });
+  if (res.status >= 400) {
+    const r = await res.text();
+    throw new Error(r);
+  }
   return await res.json();
 }
 
@@ -38,6 +42,10 @@ export async function home(locationId: string): Promise<Home> {
       Authorization: `Bearer ${token.access_token}`,
     },
   });
+  if (res.status >= 400) {
+    const err = await res.text();
+    throw new Error(err);
+  }
   return await res.json();
 }
 

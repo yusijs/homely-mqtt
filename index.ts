@@ -4,7 +4,7 @@ import { logger } from './utils/logger';
 import { home, listenToSocket, locations } from './homely/api';
 import { init } from './db/init';
 import { discover } from './entities/discover';
-import { Device, Home } from './models/home';
+import { Device, Home, HomelyLocation } from './models/home';
 import { gateway } from './entities/gateway';
 import { createDevices } from './entities/devices';
 import { getAndCreateEntities } from './entities/entities';
@@ -14,6 +14,8 @@ import {
   publishEntityChanges,
 } from './entities/publish-entity-changes';
 import { scheduleJob } from 'node-schedule';
+import { HomelyDevice } from './db';
+import { HomelyAlarmStateToHomeAssistant } from './models/alarm-state';
 
 dotenv.config();
 
@@ -54,45 +56,31 @@ async function updateAndCreateEntities(homeData: Home) {
   await getAndCreateEntities(discoveredDevices, gatewayFeature);
   await createEntitiesMqtt();
   await publishEntityChanges(discoveredDevices, devices);
-  const alarmState = homeData.alarmState?.toLowerCase();
-  const validStates = [
-    'disarmed',
-    'armed_home',
-    'armed_away',
-    'armed_night',
-    'armed_vacation',
-    'armed_custom_bypass',
-    'pending',
-    'triggered',
-    'arming',
-    'disarming',
-  ];
-  const alarmStateIsValid = validStates.includes(alarmState);
-  if (!alarmStateIsValid) {
-    logger.warn(
-      `Alarm state ${alarmState} is not valid, accepted values are:
-      ${validStates.join('\n')}.`
-    );
-  } else {
-    logger.debug(`Publishing alarm state ${alarmState}.`);
-  }
+  const alarmState = HomelyAlarmStateToHomeAssistant[homeData.alarmState];
+
   publish(gatewayFeature.state_topic, alarmState);
 }
 
 (async function () {
   await init();
-  const homes = await locations();
-  logger.info(`Loaded ${homes.length} homes`);
-  logger.debug(homes);
-
   try {
-    for (const location of homes) {
-      const homeData = await home(location.locationId);
-      await updateAndCreateEntities(homeData);
-      await pollHomely(location.locationId);
-      await listenToSocket(location.locationId);
+    const homes = await locations();
+    logger.info(`Loaded ${homes.length} homes`);
+    logger.debug(homes);
+
+    try {
+      for (const location of homes) {
+        const homeData = await home(location.locationId);
+        await updateAndCreateEntities(homeData);
+        await pollHomely(location.locationId);
+        await listenToSocket(location.locationId);
+      }
+    } catch (ex) {
+      logger.error(`Application encountered a fatal error and will exit.`);
+      logger.fatal(ex);
     }
   } catch (ex) {
+    logger.error(`Application encountered a fatal error and will exit.`);
     logger.fatal(ex);
   }
 })();
