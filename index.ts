@@ -78,9 +78,11 @@ async function updateAndCreateEntities(homeData: Home) {
     } catch (ex) {
       logger.error(`Application encountered a fatal error and will exit.`);
       logger.fatal(ex);
+      process.exit();
     }
   } catch (ex) {
     logger.error(`Application encountered a fatal error and will exit.`);
     logger.fatal(ex);
+    process.exit();
   }
 })();
