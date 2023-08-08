@@ -1,0 +1,31 @@
+database:
+  logLevel: debug
+  # Reset the database on startup. This will delete all data in the database. Useful for debugging, but will wipe ALL your data.
+  reset: false
+  connection:
+    username: user
+    password: password
+    storage: db.sqlite
+    host: localhost
+    dialect: sqlite
+
+mqtt:
+  # Set to false to disable mqtt. This will log all messages to the console.
+  # Useful for testing the setup.
+  enabled: true
+  qos: 1
+  host: mqtt://192.168.86.38:1883
+  user: homely
+
+homely:
+  # Api can also be test-sdk.iotiliti.cloud
+  host: sdk.iotiliti.cloud
+
+# One of: error, warn, info, verbose, debug, silly. Defaults to info if not provided.
+logLevel: info
+
+polling:
+  # Crontab schedule for polling via rest. Websocket is always connected, so this is just meant as a fallback.
+  # If not specified, defaults to every 30 minutes
+  schedule: "*/5 * * * *"
+

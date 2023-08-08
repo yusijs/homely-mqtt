@@ -1,0 +1,44 @@
+{
+  "name": "homely",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.ts",
+    "build": "tsc -p tsconfig.json",
+    "build:docker": "docker build -t yusijs/homely-mqtt:latest -t yusijs/homely-mqtt:$(git rev-parse HEAD) .",
+    "publish:docker": "docker push --all-tags yusijs/homely-mqtt",
+    "build-publish:docker": "npm run build:docker && npm run publish:docker"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.4.5",
+    "config": "^3.3.9",
+    "dotenv": "^16.3.1",
+    "mqtt": "^5.0.1",
+    "node-fetch": "^2.6.6",
+    "node-schedule": "^2.1.1",
+    "nodemon": "^3.0.1",
+    "pino": "^8.14.2",
+    "pino-pretty": "^10.2.0",
+    "sequelize": "^6.32.1",
+    "socket.io": "^2.5.0",
+    "socket.io-client": "^2.5.0",
+    "sqlite3": "^5.1.6",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/config": "^3.3.0",
+    "@types/node-fetch": "^2.6.4",
+    "@types/node-schedule": "^2.1.0",
+    "@types/socket.io-client": "^1.4.36",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1",
+    "eslint": "^8.46.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0"
+  }
+}
