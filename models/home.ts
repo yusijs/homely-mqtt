@@ -2,6 +2,8 @@
  * This file contains the types for the Homely API.
  */
 
+import { AlarmState } from './alarm-state';
+
 /**
  * The Homely API returns a list of locations, each location has a locationId which is used to get the details of the location.
  */
@@ -19,7 +21,7 @@ export type Home = {
   locationId: string;
   gatewayserial: string;
   name: string;
-  alarmState: string;
+  alarmState: AlarmState;
   userRoleAtLocation: string;
   devices: Device[];
 };
