@@ -2,6 +2,13 @@ import { Device, Home } from '../models/home';
 import * as crypto from 'crypto';
 import { HomelyFeature } from '../db';
 import { logger } from '../utils/logger';
+import { Config } from '../models/config';
+import config from 'config';
+
+const configTopic =
+  config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homeassistant';
+const stateTopic =
+  config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homely';
 
 /**
  * Create the gateway (alarm-panel) device
@@ -30,10 +37,10 @@ export const gateway = (homeData: Home) => {
     type: 'alarm_control_panel',
     device_class: 'alarm_control_panel',
     name: 'Gateway',
-    command_topic: `homely/${homeData.gatewayserial}/armed/command`,
-    availability_topic: `homely/${homeData.gatewayserial}/availability`,
-    config_topic: `homeassistant/alarm_control_panel/${homeData.gatewayserial}/config`,
-    state_topic: `homely/${homeData.gatewayserial}/armed/state`,
+    command_topic: `${stateTopic}/${homeData.gatewayserial}/armed/command`,
+    availability_topic: `${stateTopic}/${homeData.gatewayserial}/availability`,
+    config_topic: `${configTopic}/alarm_control_panel/${homeData.gatewayserial}/config`,
+    state_topic: `${stateTopic}/${homeData.gatewayserial}/armed/state`,
   } as HomelyFeature;
   logger.debug({ gatewayDevice: device, gatewaySensor: feature });
   return { device, feature };

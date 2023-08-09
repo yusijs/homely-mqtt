@@ -16,6 +16,11 @@ mqtt:
   qos: 1
   host: mqtt://192.168.86.38:1883
   user: homely
+  topicPrefixes:
+    # The topic prefix for discovery messages in home assistant. Defaults to homeassistant if not defined
+    config: homeassistant
+    # The topic prefix for state messages. Defaults to homely if not defined
+    state: homely
 
 homely:
   # Api can also be test-sdk.iotiliti.cloud

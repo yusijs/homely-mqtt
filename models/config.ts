@@ -29,6 +29,17 @@ export type Config = {
     enabled?: boolean;
     host: string;
     user: string;
+    qos?: number;
+    topicPrefixes?: {
+      /**
+       * The topic prefix for discovery messages in home assistant. Defaults to homeassistant if not defined
+       */
+      config?: string;
+      /**
+       * The topic prefix for state messages. Defaults to homely if not defined
+       */
+      state?: string;
+    };
   };
   homely: {
     host: string;

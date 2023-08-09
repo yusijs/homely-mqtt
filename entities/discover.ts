@@ -5,6 +5,13 @@ import { logger } from '../utils/logger';
 import { HomelyFeature } from '../db';
 import { SensorWithName } from '../sensors/model';
 import { InferCreationAttributes } from 'sequelize';
+import config from 'config';
+import { Config } from '../models/config';
+
+const configTopic =
+  config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homeassistant';
+const stateTopic =
+  config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homely';
 
 // Capitalizes the first letter of a string to make device-names more human-readable
 export const capitalize = (s: string) =>
@@ -28,7 +35,7 @@ export const discover = (
       const device_class =
         s.deviceClass ??
         (s.getDeviceClass ? s.getDeviceClass(m.device) : undefined);
-      const topicBase = `homely/${m.device.id}`;
+      const topicBase = `${stateTopic}/${m.device.id}`;
       return {
         id: s.id,
         device_id: m.device.id,
@@ -43,7 +50,7 @@ export const discover = (
         state_class: s.stateClass,
         entity_category: s.entityCategory,
         name: capitalize(s.name).replace(/_/g, ' '),
-        config_topic: `homeassistant/${s.type}/${m.device.id}/${s.name}/config`,
+        config_topic: `${configTopic}/${s.type}/${m.device.id}/${s.name}/config`,
         availability_topic: `${topicBase}/online`,
         state_topic: `${topicBase}/${s.name}/state`,
       } as InferCreationAttributes<HomelyFeature> & { online: boolean };

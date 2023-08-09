@@ -21,7 +21,7 @@ if (!process.env.MQTT_HOST) {
 const mqttOptions: IClientOptions = {
   username: process.env.MQTT_USER,
   password: process.env.MQTT_PASSWORD,
-  log: logger.debug,
+  log: (args) => logger.debug(args),
   will: {
     topic: 'homely/notice',
     payload: new Buffer('Homely is offline'),
