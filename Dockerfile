@@ -6,6 +6,10 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+# Install python
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache build-base python3 && ln -sf python3 /usr/bin/python
+
 # Install dependencies
 RUN npm install
 
