@@ -41,6 +41,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/arm
           tags: ${{ steps.meta.outputs.tags }},yusijs/homely-mqtt:${{ inputs.tag }}
           labels: ${{ steps.meta.outputs.labels }}
