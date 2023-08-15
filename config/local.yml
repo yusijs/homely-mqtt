@@ -26,11 +26,14 @@ homely:
   # Api can also be test-sdk.iotiliti.cloud
   host: sdk.iotiliti.cloud
 
-# One of: error, warn, info, verbose, debug, silly. Defaults to info if not provided.
-logLevel: info
-
 polling:
   # Crontab schedule for polling via rest. Websocket is always connected, so this is just meant as a fallback.
   # If not specified, defaults to every 30 minutes
   schedule: "*/5 * * * *"
 
+
+# One of: error, warn, info, verbose, debug, silly. Defaults to info if not provided.
+logLevel: info
+# If true, application will crash on errors (homely api, mqtt, database).
+# Defaults to true if not provided.
+exitOnFailure: true

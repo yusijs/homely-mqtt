@@ -14,9 +14,10 @@ import {
   publishEntityChanges,
 } from './entities/publish-entity-changes';
 import { scheduleJob } from 'node-schedule';
-import { HomelyDevice, HomelyFeature } from './db';
+import { HomelyFeature } from './db';
 import { HomelyAlarmStateToHomeAssistant } from './models/alarm-state';
-import { mqttClient } from './utils/mqtt';
+
+const exitOnFailure = config.get<boolean>('exitOnFailure') ?? true;
 
 dotenv.config();
 
@@ -38,8 +39,18 @@ if (!process.env.HOMELY_PASSWORD) {
 const pollHomely = (locationId: string) => {
   const schedule = config.get<string | undefined>('polling.schedule');
   scheduleJob(schedule ?? '*/30 * * * *', async () => {
-    const homeData = await home(locationId);
-    await updateAndCreateEntities(homeData);
+    try {
+      const homeData = await home(locationId);
+      await updateAndCreateEntities(homeData);
+    } catch (ex) {
+      logger.error(
+        `Failed to poll homely for location ${locationId}, exception listed below:`
+      );
+      logger.error(ex);
+      if (exitOnFailure) {
+        process.exit();
+      }
+    }
   });
 };
 
@@ -79,28 +90,46 @@ process.on('exit', () => {
     });
 });
 
-(async function () {
-  await init();
+async function run() {
+  let homes: Array<HomelyLocation> | null;
   try {
-    const homes = await locations();
-    logger.info(`Loaded ${homes.length} homes`);
-    logger.debug(homes);
-
-    try {
-      for (const location of homes) {
-        const homeData = await home(location.locationId);
-        await updateAndCreateEntities(homeData);
-        await pollHomely(location.locationId);
-        await listenToSocket(location.locationId);
-      }
-    } catch (ex) {
-      logger.error(`Application encountered a fatal error and will exit.`);
-      logger.fatal(ex);
+    homes = await locations();
+  } catch (ex) {
+    homes = null;
+    logger.error(`Failed to load homes`);
+    logger.error(ex);
+    if (exitOnFailure) {
       process.exit();
     }
-  } catch (ex) {
-    logger.error(`Application encountered a fatal error and will exit.`);
-    logger.fatal(ex);
-    process.exit();
   }
+  if (!homes) {
+    logger.error(`Failed to load homes, rerunning discovery in 30 seconds`);
+    setTimeout(run, 30_000);
+    return;
+  }
+  logger.info(`Loaded ${homes.length} homes`);
+  logger.debug(homes);
+  for (const location of homes) {
+    let homeData: Home | null;
+    try {
+      homeData = await home(location.locationId);
+    } catch (ex) {
+      homeData = null;
+      logger.error(`Failed to load home ${location.locationId}`);
+      logger.error(ex);
+      if (exitOnFailure) {
+        process.exit();
+      }
+    }
+    if (homeData) {
+      await updateAndCreateEntities(homeData);
+    }
+    pollHomely(location.locationId);
+    await listenToSocket(location.locationId);
+  }
+}
+
+(async function () {
+  await init();
+  await run();
 })();

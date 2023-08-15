@@ -43,3 +43,5 @@ If you want to add a device, create a pull request adding information for the de
 | Intelligent Heat Alarm  	| ad923ba3-2b72-45e0-a9d7-91808a76f2ed 	|
 | Motion Sensor Mini      	| 57038a68-3a39-43c8-be8d-11f58521eecc 	|
 | Alarm Entry Sensor 2    	| 9b765375-e3f4-4627-b73c-b4143ce86c2c 	|
+
+

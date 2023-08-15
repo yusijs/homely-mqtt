@@ -48,4 +48,5 @@ export type Config = {
     schedule?: string;
   };
   logLevel?: string;
+  exitOnFailure?: boolean;
 };
