@@ -48,3 +48,5 @@ jobs:
           platforms: ${{ inputs.platforms }}
           tags: ${{ steps.meta.outputs.tags }},yusijs/homely-mqtt:${{ inputs.tag }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=yusijs/homely-mqtt:${{ inputs.tag }}
+          cache-to: type=inline
