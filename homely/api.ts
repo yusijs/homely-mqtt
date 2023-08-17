@@ -8,6 +8,7 @@ import config from 'config';
 import { Config } from '../models/config';
 import { HomelyDevice, HomelyFeature } from '../db';
 import { publish } from '../entities/publish-entity-changes';
+import { HomelyAlarmStateToHomeAssistant } from '../models/alarm-state';
 
 const uri = `https://${config.get<Config['homely']['host']>(
   'homely.host'
@@ -114,8 +115,39 @@ export async function listenToSocket(locationId: string) {
           publish(stateTopic, c.value);
         }
         break;
+      case 'alarm-state-changed':
+        const gatewayDevice = await HomelyDevice.findOne({
+          where: { modelId: 'Gateway', homeId: data.data.locationId },
+          include: { all: true, nested: true },
+        });
+        if (!gatewayDevice) {
+          logger.warn(
+            `Gateway device not found for location ${data.data.locationId}`
+          );
+          return;
+        }
+        logger.debug(gatewayDevice.toJSON());
+        if (!gatewayDevice.features) {
+          logger.warn(`Gateway device has 0 features ${data.data.locationId}`);
+          return;
+        }
+        const feature = gatewayDevice.features[0];
+        if (!feature) {
+          logger.warn(
+            `Gateway feature not found for location ${data.data.locationId}`
+          );
+          return;
+        }
+        const stateTopic = feature.state_topic;
+        const state = HomelyAlarmStateToHomeAssistant[data.data.state];
+        publish(stateTopic, state);
+        break;
       default:
-        logger.warn(`Unknown event type ${data.type}, see payload below:`);
+        logger.warn(
+          `Unknown event type ${
+            (data as { type: string }).type
+          }, see payload below:`
+        );
         logger.warn(data);
     }
   });

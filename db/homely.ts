@@ -51,7 +51,7 @@ export class HomelyDevice extends Model<
     'device_id'
   >;
 
-  declare features?: NonAttribute<HomelyFeature>;
+  declare features?: NonAttribute<Array<HomelyFeature>>;
 
   declare static associations: {
     features: Association<HomelyDevice, HomelyFeature>;

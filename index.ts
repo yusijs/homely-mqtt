@@ -90,17 +90,17 @@ process.on('exit', () => {
       for (const location of homes) {
         const homeData = await home(location.locationId);
         await updateAndCreateEntities(homeData);
-        await pollHomely(location.locationId);
+        pollHomely(location.locationId);
         await listenToSocket(location.locationId);
       }
     } catch (ex) {
-      logger.error(`Application encountered a fatal error and will exit.`);
-      logger.fatal(ex);
+      logger.warn(`Application encountered a fatal error and will exit.`);
+      logger.error(ex);
       process.exit();
     }
   } catch (ex) {
-    logger.error(`Application encountered a fatal error and will exit.`);
-    logger.fatal(ex);
+    logger.warn(`Application encountered a fatal error and will exit.`);
+    logger.error(ex);
     process.exit();
   }
 })();

@@ -11,7 +11,7 @@
     "build-publish:docker": "npm run build:docker && npm run publish:docker"
   },
   "engines": {
-    "node": "16.x"
+    "node": "16.x || 18.x"
   },
   "keywords": [],
   "author": "",
