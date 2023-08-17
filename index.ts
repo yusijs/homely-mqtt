@@ -57,6 +57,7 @@ async function updateAndCreateEntities(homeData: Home) {
   discoveredDevices.forEach((dev) =>
     publish(dev.availability_topic, dev.online ? 'online' : 'offline')
   );
+  publish(gatewayFeature.availability_topic, 'online');
   await getAndCreateEntities(discoveredDevices, gatewayFeature);
   await createEntitiesMqtt();
   await publishEntityChanges(discoveredDevices, devices);
