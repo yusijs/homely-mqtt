@@ -43,7 +43,7 @@ export const createEntitiesMqtt = async () => {
       JSON.stringify({
         device,
         unique_id,
-        name: `${prefix ? `${prefix}_` : ''}${name}`,
+        name: `${prefix ? `${prefix} ` : ''}${name}`,
         device_class,
         unit_of_measurement,
         state_class,
