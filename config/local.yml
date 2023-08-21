@@ -1,7 +1,7 @@
 database:
   logLevel: debug
-  # Reset the database on startup. This will delete all data in the database. Useful for debugging, but will wipe ALL your data.
-  reset: false
+  # Reset the database on startup. This will delete all data in the database.
+  reset: true
   connection:
     username: user
     password: password
@@ -16,6 +16,8 @@ mqtt:
   qos: 1
   host: mqtt://192.168.86.38:1883
   user: homely
+  # Prefix to set in front of all entity names. If not defined, all entities will only be named by their type (e.g contact_1 etc)
+  entityPrefix: homely
   topicPrefixes:
     # The topic prefix for discovery messages in home assistant. Defaults to homeassistant if not defined
     config: homeassistant

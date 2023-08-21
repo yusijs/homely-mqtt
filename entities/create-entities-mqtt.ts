@@ -1,13 +1,16 @@
 import { HomelyFeature } from '../db';
 import { mqttClient } from '../utils/mqtt';
 import { logger } from '../utils/logger';
+import config from 'config';
+import { Config } from '../models/config';
+
+const prefix = config.get<Config['mqtt']>('mqtt').topicPrefixes;
 
 /**
  * Publishes all entities where published is false to mqtt, and marks them as published.
  */
 export const createEntitiesMqtt = async () => {
   const newFeatures = await HomelyFeature.findAll({
-    where: { published: false },
     include: {
       all: true,
     },
@@ -40,7 +43,7 @@ export const createEntitiesMqtt = async () => {
       JSON.stringify({
         device,
         unique_id,
-        name: `${name}`,
+        name: `${prefix ? `${prefix}_` : ''}${name}`,
         device_class,
         unit_of_measurement,
         state_class,

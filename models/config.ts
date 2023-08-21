@@ -6,6 +6,7 @@ export type Config = {
      * If true, the database will be reset on startup, and all devices will be re-discovered.
      */
     reset?: boolean;
+    entityPrefix?: string;
     connection: {
       username: string;
       password: string;
