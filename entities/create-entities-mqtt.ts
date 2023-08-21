@@ -4,7 +4,7 @@ import { logger } from '../utils/logger';
 import config from 'config';
 import { Config } from '../models/config';
 
-const prefix = config.get<Config['mqtt']>('mqtt').topicPrefixes;
+const prefix = config.get<Config['mqtt']>('mqtt').entityPrefix;
 
 /**
  * Publishes all entities where published is false to mqtt, and marks them as published.
