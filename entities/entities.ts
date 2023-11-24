@@ -47,6 +47,9 @@ export const getAndCreateEntities = async (
       }
     } else {
       try {
+        logger.debug(`Creating feature ${feature.name}: 
+        
+        ${JSON.stringify(feature, null, 2)}`);
         await HomelyFeature.create(feature);
       } catch (ex) {
         logger.error(ex);
