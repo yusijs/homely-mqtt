@@ -38,21 +38,25 @@ export const createEntitiesMqtt = async () => {
       state_topic,
       entity_category,
     } = d.toJSON();
+    const mqttPayload = {
+      device,
+      unique_id,
+      name: `${prefix ? `${prefix} ` : ''}${name}`,
+      device_class,
+      unit_of_measurement,
+      state_class,
+      command_topic,
+      config_topic,
+      availability_topic,
+      state_topic,
+      entity_category,
+    };
+    logger.debug(`Creating home assistant entity:
+      
+      ${JSON.stringify(mqttPayload, null, 2)}`);
     mqttClient.publish(
       d.config_topic,
-      JSON.stringify({
-        device,
-        unique_id,
-        name: `${prefix ? `${prefix} ` : ''}${name}`,
-        device_class,
-        unit_of_measurement,
-        state_class,
-        command_topic,
-        config_topic,
-        availability_topic,
-        state_topic,
-        entity_category,
-      }),
+      JSON.stringify(mqttPayload),
       {
         qos: 2,
         retain: true,

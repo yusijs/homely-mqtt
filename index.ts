@@ -4,7 +4,7 @@ import { logger } from './utils/logger';
 import { home, listenToSocket, locations } from './homely/api';
 import { init } from './db/init';
 import { discover } from './entities/discover';
-import { Device, Home, HomelyLocation } from './models/home';
+import { Device, Home } from './models/home';
 import { gateway } from './entities/gateway';
 import { createDevices } from './entities/devices';
 import { getAndCreateEntities } from './entities/entities';
@@ -14,9 +14,8 @@ import {
   publishEntityChanges,
 } from './entities/publish-entity-changes';
 import { scheduleJob } from 'node-schedule';
-import { HomelyDevice, HomelyFeature } from './db';
+import { HomelyFeature } from './db';
 import { HomelyAlarmStateToHomeAssistant } from './models/alarm-state';
-import { mqttClient } from './utils/mqtt';
 
 dotenv.config();
 
@@ -75,7 +74,7 @@ process.on('exit', () => {
         }
       });
     })
-    .catch((ex) => {
+    .catch(() => {
       /*already exiting, skip.*/
     });
 });
@@ -90,6 +89,9 @@ process.on('exit', () => {
     try {
       for (const location of homes) {
         const homeData = await home(location.locationId);
+        logger.debug(`Home data retrieved from homely:
+        
+        ${JSON.stringify(homeData, null, 2)}`);
         await updateAndCreateEntities(homeData);
         pollHomely(location.locationId);
         await listenToSocket(location.locationId);
