@@ -89,6 +89,13 @@ process.on('exit', () => {
     try {
       for (const location of homes) {
         const homeData = await home(location.locationId);
+        if (process.env.GET_LOCATION) {
+          console.log(
+            `Getting location info for ${location.name}. The process will exit afterwards`
+          );
+          console.log(JSON.stringify(homeData, null, 2));
+          process.exit(1);
+        }
         logger.debug(`Home data retrieved from homely:
         
         ${JSON.stringify(homeData, null, 2)}`);
