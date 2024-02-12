@@ -8,7 +8,7 @@ import config from 'config';
 const configTopic =
   config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homeassistant';
 const stateTopic =
-  config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homely';
+  config.get<Config['mqtt']>('mqtt').topicPrefixes?.state ?? 'homely';
 
 /**
  * Create the gateway (alarm-panel) device

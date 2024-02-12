@@ -5,6 +5,7 @@ import config from 'config';
 import { Config } from '../models/config';
 import { DoneCallback } from 'mqtt/src/lib/shared';
 import { IClientPublishOptions } from 'mqtt/src/lib/client';
+import EventEmitter from 'node:events';
 
 dotenv.config();
 process.env.MQTT_HOST =
@@ -12,7 +13,7 @@ process.env.MQTT_HOST =
 process.env.MQTT_USER =
   process.env.MQTT_USER ?? config.get<Config['mqtt']>('mqtt').user;
 
-const enabled = config.get<Config['mqtt']>('mqtt').enabled ?? true;
+const enabled = config.get<Config['mqtt']>('mqtt').enabled ?? false;
 
 if (!process.env.MQTT_HOST) {
   logger.fatal('MQTT_HOST is not defined');
@@ -36,7 +37,12 @@ if (enabled) {
   mqttClient = connect(process.env.MQTT_HOST, mqttOptions);
 } else {
   // A mock instance of mqttClient for testing without sending any messages
+  const events = new EventEmitter();
   mqttClient = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    on(event: string, cb: (...args: any[]) => void) {
+      return events.on(event, cb);
+    },
     publish: (
       topic: string,
       message: string | Buffer,
@@ -49,6 +55,7 @@ if (enabled) {
       } catch {
         msg = message?.toString() ?? '';
       }
+      events.emit('message', msg);
       logger.info({
         topic,
         message: msg,
