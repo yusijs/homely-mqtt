@@ -12,7 +12,15 @@ const dbLogger = (sql: string, timing?: number) => {
   return logger.debug(`[DB][${timing}ms] ${sql}`);
 };
 
-export const sequelize = new Sequelize({
-  ...dbConfig.connection,
-  logging: dbLogger,
-});
+let sequelize: Sequelize;
+
+if (process.env.NODE_ENV === 'test') {
+  sequelize = new Sequelize('sqlite::memory:', { logging: false });
+} else {
+  sequelize = new Sequelize({
+    ...dbConfig.connection,
+    logging: dbLogger,
+  });
+}
+
+export { sequelize };
