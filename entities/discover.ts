@@ -11,7 +11,7 @@ import { Config } from '../models/config';
 const configTopic =
   config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homeassistant';
 const stateTopic =
-  config.get<Config['mqtt']>('mqtt').topicPrefixes?.config ?? 'homely';
+  config.get<Config['mqtt']>('mqtt').topicPrefixes?.state ?? 'homely';
 
 // Capitalizes the first letter of a string to make device-names more human-readable
 export const capitalize = (s: string) =>
