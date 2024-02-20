@@ -58,7 +58,7 @@ export const createEntitiesMqtt = async () => {
       d.config_topic,
       JSON.stringify(mqttPayload),
       {
-        qos: 2,
+        qos: 1,
         retain: true,
       },
       async () => {
