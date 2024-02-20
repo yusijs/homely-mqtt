@@ -15,7 +15,8 @@ export const createEntitiesMqtt = async () => {
       all: true,
     },
   });
-  newFeatures.forEach((d) => {
+  for await (const { value: d, done } of staggerEntities(newFeatures)) {
+    if (done) break;
     const homelyDevice = d.device!.toJSON();
     const device = {
       ids: [homelyDevice.id],
@@ -71,5 +72,28 @@ export const createEntitiesMqtt = async () => {
         }
       }
     );
-  });
+  }
 };
+
+type ReturnStagger<T> =
+  | {
+      value: T;
+      done: false;
+    }
+  | {
+      value: null;
+      done: true;
+    };
+
+async function* staggerEntities<T>(
+  entities: Array<T>
+): AsyncIterable<ReturnStagger<T>> {
+  for (const entity of entities) {
+    yield { value: entity, done: false };
+    await new Promise<void>((r) => setTimeout(() => r(), 500));
+  }
+  yield {
+    value: null,
+    done: true,
+  };
+}
