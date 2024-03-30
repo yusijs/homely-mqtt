@@ -23,7 +23,26 @@ class Authentication {
         password: process.env.HOMELY_PASSWORD,
       }),
     });
+    if (res.status >= 400) {
+      let result;
+      if (res.headers.get('Content-Type')?.includes('json')) {
+        result = await res.json();
+      } else {
+        result = await res.text();
+      }
+      logger.fatal({
+        message: `Error: Homely replied with error code ${res.status}: ${res.statusText}`,
+        result,
+      });
+    }
     this.token = await res.json();
+    if (!this.token.expires_in) {
+      const { access_token, refresh_token, ...rest } = this.token;
+      logger.fatal({
+        message: `Error: Token payload from Homely is missing expiry-time`,
+        object: rest, // Don't log token out in cleartext
+      });
+    }
     this.token.exp = Date.now() + this.token.expires_in * 1000;
     logger.info(
       `Authenticated. Token expires at ${new Date(
