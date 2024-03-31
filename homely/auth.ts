@@ -34,14 +34,20 @@ class Authentication {
         message: `Error: Homely replied with error code ${res.status}: ${res.statusText}`,
         result,
       });
+      process.exit();
     }
     this.token = await res.json();
-    if (!this.token.expires_in) {
+    if (
+      !this.token.expires_in ||
+      !this.token.access_token ||
+      !this.token.refresh_token
+    ) {
       const { access_token, refresh_token, ...rest } = this.token;
       logger.fatal({
-        message: `Error: Token payload from Homely is missing expiry-time`,
+        message: `Error: Token payload from Homely is missing required fields (access_token, expires_in, refresh_token)`,
         object: rest, // Don't log token out in cleartext
       });
+      process.exit();
     }
     this.token.exp = Date.now() + this.token.expires_in * 1000;
     logger.info(

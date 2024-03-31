@@ -90,10 +90,10 @@ process.on('exit', () => {
       for (const location of homes) {
         const homeData = await home(location.locationId);
         if (process.env.GET_LOCATION) {
-          console.log(
-            `Getting location info for ${location.name}. The process will exit afterwards`
-          );
-          console.log(JSON.stringify(homeData, null, 2));
+          logger.debug({
+            message: `Getting location info for ${location.name}. The process will exit afterwards`,
+            data: homeData,
+          });
           process.exit(1);
         }
         logger.debug(`Home data retrieved from homely:
@@ -104,13 +104,17 @@ process.on('exit', () => {
         await listenToSocket(location.locationId);
       }
     } catch (ex) {
-      logger.warn(`Application encountered a fatal error and will exit.`);
-      logger.error(ex);
+      logger.fatal({
+        message: `Application encountered a fatal error and will exit.`,
+        error: ex,
+      });
       process.exit();
     }
   } catch (ex) {
-    logger.warn(`Application encountered a fatal error and will exit.`);
-    logger.error(ex);
+    logger.fatal({
+      message: `Application encountered a fatal error and will exit.`,
+      error: ex,
+    });
     process.exit();
   }
 })();
