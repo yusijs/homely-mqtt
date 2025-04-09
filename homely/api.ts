@@ -96,23 +96,31 @@ export async function listenToSocket(locationId: string) {
           return;
         }
         logger.debug(`Device found: ${device.name}`);
-        for (const c of unit.changes) {
-          const feature = await HomelyFeature.findOne({
-            where: { device_id_suffix: `${device.id}_${c.stateName}` },
-          });
-          if (!feature) {
-            logger.warn(
-              `[WS] Feature ${c.feature} -> ${c.stateName} not found for device: ${device.name}`
+        try {
+          for (const c of unit.changes) {
+            const feature = await HomelyFeature.findOne({
+              where: { device_id_suffix: `${device.id}_${c.stateName}` },
+            });
+            if (!feature) {
+              logger.warn(
+                `[WS] Feature ${c.feature} -> ${c.stateName} not found for device: ${device.name}`
+              );
+              logger.debug(device);
+              logger.debug(
+                `Query by ${device.id}_${c.stateName} returned 0 results`
+              );
+              return;
+            }
+            logger.info(
+              `[WS] Updating state for ${feature.name} to ${c.value}`
             );
-            logger.debug(device);
-            logger.debug(
-              `Query by ${device.id}_${c.stateName} returned 0 results`
-            );
-            return;
+            const stateTopic = feature.state_topic;
+            publish(stateTopic, c.value);
           }
-          logger.info(`[WS] Updating state for ${feature.name} to ${c.value}`);
-          const stateTopic = feature.state_topic;
-          publish(stateTopic, c.value);
+        } catch (ex) {
+          logger.error(`Failed to update state for device ${device.name}`);
+          logger.error(ex);
+          logger.error(`Details: ${JSON.stringify(unit, null, 2)}`);
         }
         break;
       case 'alarm-state-changed':
