@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
  subgraph parameters["parameters"]
         BC["codDate"]
@@ -34,3 +35,5 @@ flowchart TD
     style D fill:#f96,stroke:#333,stroke-width:1px
 
 
+
+```
