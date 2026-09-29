@@ -16,19 +16,37 @@ const uri = `https://${config.get<Config['homely']['host']>(
 const wsUri = `wss://${config.get<Config['homely']['host']>('homely.host')}`;
 
 /**
+ * GET an API path with the current token. If Homely rejects the token (401),
+ * log in again and retry once.
+ * @param path
+ */
+async function authorizedGet(path: string) {
+  const get = async () => {
+    const token = await authenticator.getToken();
+    return await fetch(`${uri}${path}`, {
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+      },
+    });
+  };
+  let res = await get();
+  if (res.status === 401) {
+    logger.warn(`Homely rejected the token for ${path}, logging in again`);
+    authenticator.invalidate();
+    res = await get();
+  }
+  if (res.status >= 400) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  return res;
+}
+
+/**
  * Get all locations for the authenticated user.
  */
 export async function locations(): Promise<Array<HomelyLocation>> {
-  const token = await authenticator.getToken();
-  const res = await fetch(`${uri}/locations`, {
-    headers: {
-      Authorization: `Bearer ${token.access_token}`,
-    },
-  });
-  if (res.status >= 400) {
-    const r = await res.text();
-    throw new Error(r);
-  }
+  const res = await authorizedGet('/locations');
   return await res.json();
 }
 
@@ -37,17 +55,41 @@ export async function locations(): Promise<Array<HomelyLocation>> {
  * @param locationId
  */
 export async function home(locationId: string): Promise<Home> {
-  const token = await authenticator.getToken();
-  const res = await fetch(`${uri}/home/${locationId}`, {
-    headers: {
-      Authorization: `Bearer ${token.access_token}`,
-    },
-  });
-  if (res.status >= 400) {
-    const err = await res.text();
-    throw new Error(err);
-  }
+  const res = await authorizedGet(`/home/${locationId}`);
   return await res.json();
+}
+
+const RECONNECT_MIN_MS = 5_000;
+const RECONNECT_MAX_MS = 5 * 60_000;
+const reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const reconnectDelays = new Map<string, number>();
+
+/**
+ * Reconnect to the websocket after a delay that doubles on every failed
+ * attempt (up to 5 minutes), so a Homely outage doesn't cause a tight loop.
+ * Only one reconnect per location is pending at a time.
+ * @param locationId
+ * @param reason
+ */
+function scheduleReconnect(locationId: string, reason: string) {
+  if (reconnectTimers.has(locationId)) {
+    return;
+  }
+  const delay = reconnectDelays.get(locationId) ?? RECONNECT_MIN_MS;
+  reconnectDelays.set(locationId, Math.min(delay * 2, RECONNECT_MAX_MS));
+  logger.info(
+    `[WS] Reconnecting to homely in ${Math.round(delay / 1000)}s (${reason})`
+  );
+  reconnectTimers.set(
+    locationId,
+    setTimeout(() => {
+      reconnectTimers.delete(locationId);
+      listenToSocket(locationId).catch((e) => {
+        logger.error(`[WS] Reconnect failed: ${e}`);
+        scheduleReconnect(locationId, 'reconnect failed');
+      });
+    }, delay)
+  );
 }
 
 /**
@@ -71,16 +113,30 @@ export async function listenToSocket(locationId: string) {
       },
     }
   );
+  socket.on('connect', () => {
+    logger.info('[WS] Connected to homely');
+    reconnectDelays.delete(locationId);
+  });
+  // With reconnection disabled, a failed connect never emits 'disconnect', so
+  // without this the live updates would silently stop for good
   socket.on('connect_error', (err: unknown) => {
     logger.error(`[WS] Connection error: ${err}`);
+    socket.close();
+    if (/401|unauthori[sz]ed/i.test(String(err))) {
+      authenticator.invalidate();
+    }
+    scheduleReconnect(locationId, 'connection error');
   });
   socket.on('error', (err: unknown) => {
     logger.error(`[WS] Error: ${err}`);
   });
   socket.on('disconnect', (e: string) => {
     logger.warn(`[WS] Disconnected from homely socket: ${e}`);
-    logger.info('[WS] Reconnecting to homely...');
-    listenToSocket(locationId).catch((e) => logger.error(e));
+    if (e === 'io server disconnect') {
+      // Homely ended the session, typically because the token is no longer valid
+      authenticator.invalidate();
+    }
+    scheduleReconnect(locationId, e);
   });
   socket.on('event', async function (data: HomelySocket) {
     logger.trace(data);

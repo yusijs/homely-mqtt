@@ -13,5 +13,8 @@ export type TokenResponse = {
 };
 
 export type Token = TokenResponse & {
+  /** When the access token should be renewed (epoch ms) */
   exp: number;
+  /** When the refresh token stops working (epoch ms); after that a new login is needed */
+  refreshExp?: number;
 };
