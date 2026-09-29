@@ -37,8 +37,14 @@ if (!process.env.HOMELY_PASSWORD) {
 const pollHomely = (locationId: string) => {
   const schedule = config.get<string | undefined>('polling.schedule');
   scheduleJob(schedule ?? '*/30 * * * *', async () => {
-    const homeData = await home(locationId);
-    await updateAndCreateEntities(homeData);
+    // An unhandled rejection here is emitted as an 'error' on the job, which
+    // crashes the process. Log it instead; the next poll tries again.
+    try {
+      const homeData = await home(locationId);
+      await updateAndCreateEntities(homeData);
+    } catch (ex) {
+      logger.error({ message: 'Polling homely failed', error: ex });
+    }
   });
 };
 
